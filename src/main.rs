@@ -1,3 +1,5 @@
+mod day1p2;
+
 fn main() {
-    println!("Hello, world!");
+    println!("{}", day1p2::run());
 }
