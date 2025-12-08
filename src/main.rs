@@ -1,5 +1,5 @@
-mod day3p2;
+mod day4p2;
 
 fn main() {
-    println!("{}", day3p2::run());
+    println!("{:#?}", day4p2::run());
 }
