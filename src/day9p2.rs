@@ -5,11 +5,11 @@ use std::{
 
 #[derive(Eq, Hash, PartialEq)]
 struct Point {
-    x: i64,
-    y: i64,
+    x: i32,
+    y: i32,
 }
 
-pub fn run() -> i64 {
+pub fn run() -> i32 {
     let input = fs::read_to_string("src/day9.txt").unwrap();
 
     let mut red_coords: Vec<Point> = vec![];
@@ -17,7 +17,7 @@ pub fn run() -> i64 {
         if line.len() == 0 {
             continue;
         }
-        let coords: Vec<i64> = line.split(",").map(|n| n.parse::<i64>().unwrap()).collect();
+        let coords: Vec<i32> = line.split(",").map(|n| n.parse::<i32>().unwrap()).collect();
         red_coords.push(Point {
             x: coords[0],
             y: coords[1],
@@ -65,10 +65,10 @@ pub fn run() -> i64 {
 
 #[derive(Debug)]
 struct Rect {
-    min_x: i64,
-    min_y: i64,
-    max_x: i64,
-    max_y: i64,
+    min_x: i32,
+    min_y: i32,
+    max_x: i32,
+    max_y: i32,
 }
 
 fn is_rect_in_polygon(rect: &Rect, edges: &Vec<(&Point, &Point)>) -> bool {
