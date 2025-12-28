@@ -1,13 +1,9 @@
-use std::{
-    collections::{HashSet, VecDeque},
-    fs, i32, vec,
-};
+use std::{collections::HashSet, fs, i32, vec};
 
-pub fn run() -> u64 {
+pub fn run() -> usize {
     let input = fs::read_to_string("src/day10.txt").unwrap();
 
     let mut set: HashSet<Vec<i32>> = HashSet::new();
-    let mut next_states: VecDeque<Vec<i32>> = VecDeque::new();
     let mut total = 0;
 
     for (idx, line) in input.split("\n").enumerate() {
@@ -32,60 +28,59 @@ pub fn run() -> u64 {
             actions.push(action_indices);
         }
 
-        // The actual algo
-        let minimum_moves = bfs(&actions, state, &mut set, &mut next_states);
-        total += minimum_moves;
+        // Make actions have the longest action first
+        actions.sort_by(|a, b| b.len().cmp(&a.len()));
 
-        println!("Found solution for line {}: {}", idx, minimum_moves);
+        set.clear();
+        let moves = dfs(&actions, state, 1, &mut set);
+        total += moves;
+
+        println!("Found solution for line {}: {}", idx, moves);
     }
 
     return total;
 }
 
-fn bfs(
+fn dfs(
     actions: &Vec<Vec<usize>>,
     state: Vec<i32>,
+    depth: usize,
     set: &mut HashSet<Vec<i32>>,
-    next_states: &mut VecDeque<Vec<i32>>,
-) -> u64 {
-    set.clear();
-    set.insert(state.clone());
-    next_states.clear();
-    next_states.push_front(state);
+) -> usize {
+    for action in actions {
+        let mut new_state = state.clone();
+        for idx in action {
+            new_state[*idx] -= 1;
+        }
 
-    let mut depth = 1;
-    while next_states.len() > 0 {
-        for _ in 0..next_states.len() {
-            let next_state = next_states.pop_front().unwrap();
-            for action in actions {
-                let mut local_state = next_state.clone();
-                for idx in action {
-                    local_state[*idx] -= 1;
-                }
-                if !set.contains(&local_state) {
-                    // if all equal 0, then a solution has been found
-                    let mut found = true;
-                    let mut invalid = false;
-                    for i in 0..local_state.len() {
-                        let val = local_state[i];
-                        if val > 0 {
-                            found = false;
-                        }
-                        if val < 0 {
-                            invalid = true;
-                        }
-                    }
-                    if found {
-                        return depth;
-                    }
-                    if !invalid {
-                        set.insert(local_state.clone());
-                        next_states.push_back(local_state);
-                    }
-                }
+        if set.contains(&new_state) {
+            continue;
+        } else {
+            set.insert(new_state.clone());
+        }
+
+        // if all equal 0, then a solution has been found
+        let mut found = true;
+        let mut invalid = false;
+        for val in &new_state {
+            if *val > 0 {
+                found = false;
+            }
+            if *val < 0 {
+                invalid = true;
+                break;
             }
         }
-        depth += 1;
+        if !invalid {
+            if found {
+                return depth;
+            }
+
+            let res = dfs(actions, new_state.clone(), depth + 1, set);
+            if res != 0 {
+                return res;
+            }
+        }
     }
 
     return 0;
